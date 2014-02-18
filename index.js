@@ -6,7 +6,7 @@
  * @version 0.1.1
  *
  * @tutorial
- * var player = createPlayer(audioBuffer, audioContext);
+ * var player = createPlayer(audioContext, audioBuffer);
  * player.start();
  * player.pause();
  * player.stop();
@@ -20,7 +20,7 @@ var events = require('events');
  * Function invocation pattern for a simple player.
  * @public
  */
-var createPlayer = function createPlayer(audioContext, audioBuffer) {
+var createPlayer = function createPlayer(audioBuffer, audioContext) {
   'use strict';
 
   var eventEmitter = new events.EventEmitter();
@@ -313,7 +313,7 @@ var createPlayer = function createPlayer(audioContext, audioBuffer) {
 
   // Instantiate a granular engine with audio context and buffer.
   var player = Object.create({}, playerObject);
-  return player.init(audioContext, audioBuffer);
+  return player.init(audioBuffer, audioContext);
 };
 
 
