@@ -6,11 +6,11 @@
  * @version 0.1.1
  *
  * @tutorial
- * var player = createPlayer(audioContext, audioBuffer);
+ * var player = createPlayer(audioBuffer, audioContext);
+ * player.connect(targetNode); // required to get sound
  * player.start();
  * player.pause();
  * player.stop();
- * player.connect(targetNode);
  * ... plus: setBuffer, setGain, setSpeed, seek
  */
 
@@ -87,7 +87,6 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         // Create web audio nodes, relying on the given audio context.
         this.gainNode = this.context.createGain();
         this.outputNode = this.context.createGain(); // dummy node to provide a web audio-like output node
-        this.connect(this.context.destination); // default destination
 
         this.on('ended', function() {
           console.log("Audio playing ended");
