@@ -93,7 +93,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         this.outputNode = this.context.createGain(); // dummy node to provide a web audio-like output node
 
         this.on('ended', function() {
-          console.log("Audio playing ended");
+          // console.log("Audio playing ended.");
         });
 
         return this; // for chainability
@@ -321,13 +321,15 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         // so it is necessary to check elapsed duration,
         // but speed changes can mess it up...
         this.source.onended = function() {
-          console.log("onended: ", that.getElapsedDuration() + that.startPosition);
+          console.log("Elapsed duration on \'ended\' event:", 
+            that.getElapsedDuration() + that.startPosition, 
+            "sec");
           if (!that.paused && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
-            that.emit("ended", that.startPosition);
             if (!that.loop) {
               that.playing = false;
               that.startPosition = 0;
             }
+            that.emit("ended", that.startPosition);
           }
         };
       }
