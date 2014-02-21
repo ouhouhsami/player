@@ -3,7 +3,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes can harm state handling.
  * @author Karim Barkati
- * @version 0.1.3
+ * @version 0.1.4
  *
  * @tutorial
  * var player = createPlayer(audioBuffer, audioContext);
@@ -178,7 +178,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       enumerable: true,
       value: function(bool) {
         this.loop = bool;
-        if (!this.stopped) {
+        if (this.playing || this.paused) {
           this.source.loop = this.loop;
         }
         return this; // for chainability
