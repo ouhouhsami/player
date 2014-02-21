@@ -3,7 +3,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes can harm state handling.
  * @author Karim Barkati
- * @version 0.1.2
+ * @version 0.1.3
  *
  * @tutorial
  * var player = createPlayer(audioBuffer, audioContext);
@@ -11,7 +11,7 @@
  * player.start();
  * player.pause();
  * player.stop();
- * ... plus: setBuffer, setGain, setSpeed, seek
+ * ... plus: setBuffer, setGain, setSpeed, seek, enableLoop
  */
 
 var events = require('events');
@@ -61,6 +61,10 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     },
     gain: {
       writable: true
+    },
+    loop: {
+      writable: true,
+      value: false
     },
     // For resuming after pause
     startPosition: {
@@ -166,6 +170,22 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     },
 
     /**
+     * Enable or disable looping playback.
+     * @public
+     * @chainable
+     */
+    enableLoop: {
+      enumerable: true,
+      value: function(bool) {
+        this.loop = bool;
+        if (!this.stopped) {
+          this.source.loop = this.loop;
+        }
+        return this; // for chainability
+      }
+    },
+
+    /**
      * Start playing.
      * @public
      */
@@ -179,6 +199,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
           this.source = this.context.createBufferSource();
           this.source.buffer = this.buffer;
           this.source.playbackRate.value = this.speed;
+          this.source.loop = this.loop;
           this.source.connect(this.gainNode);
 
           // Resume but make sure we stay in bound of the buffer.
@@ -303,8 +324,10 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
           console.log("onended: ", that.getElapsedDuration() + that.startPosition);
           if (!that.paused && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
             that.emit("ended", that.startPosition);
-            that.playing = false;
-            that.startPosition = 0;
+            if (!that.loop) {
+              that.playing = false;
+              that.startPosition = 0;
+            }
           }
         };
       }
