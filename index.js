@@ -321,8 +321,8 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         // so it is necessary to check elapsed duration,
         // but speed changes can mess it up...
         this.source.onended = function() {
-          console.log("Elapsed duration on \'ended\' event:", 
-            that.getElapsedDuration() + that.startPosition, 
+          console.log("Elapsed duration on \'ended\' event:",
+            that.getElapsedDuration() + that.startPosition,
             "sec");
           if (!that.paused && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
             if (!that.loop) {
@@ -337,7 +337,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
 
   };
 
-  // Instantiate a granular engine with audio context and buffer.
+  // Instantiate an object.
   var player = Object.create({}, playerObject);
   return player.init(audioBuffer, audioContext);
 };
