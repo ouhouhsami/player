@@ -17,7 +17,7 @@ The `player` object provides the following methods:
 
 ## Example
 
-```
+```js
     var audioContext = new webkitAudioContext();
     var targetNode   = audioContext.destination;
     bufferLoader.load('snd/bach.mp3', onLoaded, audioContext);
