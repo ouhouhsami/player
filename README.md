@@ -26,7 +26,7 @@ The `player` object provides the following methods:
     	var player = createPlayer(audioBuffer, audioContext);
     	player.connect(targetNode); // unconnected by default
     	player.start();
-    });
+    }
 ```
 
 ## API
