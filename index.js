@@ -267,10 +267,10 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       value: function(pos) {
         if (this.playing) {
           this.stop();
-          this.startPosition = pos;
+          this.startPosition = pos % this.bufferDuration;
           this.start();
         } else {
-          this.startPosition = pos;
+          this.startPosition = pos % this.bufferDuration;
         }
         return this.startPosition;
       }
