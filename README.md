@@ -1,4 +1,4 @@
-# The `player` object
+# Player module
 
 > WAVE audio library module for audio buffer playing.
 
@@ -18,9 +18,9 @@ The `player` object provides the following methods:
 ## Example
 
 ```js
-    var audioContext = new webkitAudioContext();
+    var audioContext = new AudioContext();
     var targetNode   = audioContext.destination;
-    bufferLoader.load('snd/bach.mp3', onLoaded, audioContext);
+    bufferLoader.load('sound/file/path', onLoaded, audioContext);
 
     function onLoaded(audioBuffer){
     	var player = createPlayer(audioBuffer, audioContext);
@@ -44,3 +44,11 @@ Method | Description
 `player.seek(float)` | Seek buffer position (in seconds).
 `player.enableLoop(bool)` | Enable or disable looping playback.
 `player.on('ended', function() { ... })` | Listen to the `'ended'` event.
+
+## License
+
+This module is released under the [BSD-3-Clause license](http://opensource.org/licenses/BSD-3-Clause).
+
+## Acknowledgments
+
+This code is part of the WAVE project (http://wave.ircam.fr), funded by ANR (The French National Research Agency), *ContInt* program, 2012-2015.

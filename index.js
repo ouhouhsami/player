@@ -92,10 +92,9 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         this.gainNode = this.context.createGain();
         this.outputNode = this.context.createGain(); // dummy node to provide a web audio-like output node
 
-        this.on('ended', function() {
-          // console.log("Audio playing ended.");
-        });
-
+        // this.on('ended', function() {
+        //   console.log("Audio playing ended.");
+        // });
         return this; // for chainability
       }
     },
