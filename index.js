@@ -3,15 +3,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes can harm state handling.
  * @author Karim Barkati
- * @version 0.1.4
- *
- * @tutorial
- * var player = createPlayer(audioBuffer, audioContext);
- * player.connect(targetNode); // required to get sound
- * player.start();
- * player.pause();
- * player.stop();
- * ... plus: setBuffer, setGain, setSpeed, seek, enableLoop
+ * @version 0.1.5
  */
 
 var events = require('events');
@@ -109,6 +101,19 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       value: function(target) {
         this.outputNode = target;
         this.gainNode.connect(this.outputNode || this.context.destination);
+        return this; // for chainability
+      }
+    },
+
+    /**
+     * Web audio API-like disconnect method.
+     * @public
+     * @chainable
+     */
+    disconnect: {
+      enumerable: true,
+      value: function(output) {
+        this.gainNode.disconnect(output);
         return this; // for chainability
       }
     },
