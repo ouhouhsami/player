@@ -13,6 +13,7 @@ The `player` object provides the following methods:
 - `seek(float)`
 - `enableLoop(bool)`
 - `on('ended', callback)`
+- `getStatus()`
 
 
 ## Example
@@ -44,6 +45,7 @@ Method | Description
 `player.seek(float)` | Seek buffer position (in seconds).
 `player.enableLoop(bool)` | Enable or disable looping playback.
 `player.on('ended', function() { ... })` | Listen to the `'ended'` event.
+`player.getStatus()` | Get player status (`IS_PLAYING`, `IS_PAUSED`, `IS_STOPPED`).
 
 ## Tests
 

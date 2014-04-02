@@ -1,9 +1,9 @@
 /** 
  * @fileOverview
  * WAVE audio library module for buffer playing.
- * Caution: speed changes can harm state handling.
+ * Caution: speed changes may harm state handling.
  * @author Karim Barkati
- * @version 0.1.5
+ * @version 0.2.0
  */
 
 var events = require('events');
@@ -18,7 +18,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
   var eventEmitter = new events.EventEmitter();
 
   /**
-   * Simple player object as an ecmascript5 properties object.
+   * Simple player object as an ECMAScript5 properties object.
    */
 
   var playerObject = {
@@ -39,14 +39,6 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     outputNode: {
       writable: true
     },
-    playing: {
-      writable: true,
-      value: false
-    },
-    paused: {
-      writable: true,
-      value: false
-    },
     speed: {
       writable: true,
       value: 1
@@ -58,6 +50,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       writable: true,
       value: false
     },
+
     // For resuming after pause
     startPosition: {
       writable: true,
@@ -66,6 +59,20 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     startedAtTime: {
       writable: true,
       value: 0
+    },
+
+    // Player status
+    IS_PLAYING: {
+      value: "is_playing"
+    },
+    IS_PAUSED: {
+      value: "is_paused"
+    },
+    IS_STOPPED: {
+      value: "is_stopped"
+    },
+    status: {
+      writable: true
     },
 
     /**
@@ -79,6 +86,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
 
         this.context = audioContext;
         this.setBuffer(audioBuffer);
+        this.status = this.IS_STOPPED;
 
         // Create web audio nodes, relying on the given audio context.
         this.gainNode = this.context.createGain();
@@ -182,7 +190,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       enumerable: true,
       value: function(bool) {
         this.loop = bool;
-        if (this.playing || this.paused) {
+        if (this.status !== this.IS_STOPPED) {
           this.source.loop = this.loop;
         }
         return this; // for chainability
@@ -197,7 +205,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
       enumerable: true,
       value: function() {
         // Lock playing to avoid multiple sources creation.
-        if (this.playing === false) {
+        if (this.status !== this.IS_PLAYING) {
           // Configure a BufferSource.
           this.startedAtTime = this.context.currentTime;
           this.source = this.context.createBufferSource();
@@ -209,8 +217,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
           // Resume but make sure we stay in bound of the buffer.
           var offset = this.startPosition % this.buffer.duration;
           this.source.start(0, offset); // optional 3rd argument as duration
-          this.playing = true;
-          this.paused = false;
+          this.status = this.IS_PLAYING;
 
           this.setOnendedCallback();
 
@@ -228,12 +235,11 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     stop: {
       enumerable: true,
       value: function() {
-        if (this.playing) {
+        if (this.status === this.IS_PLAYING) {
           this.source.stop(0);
         }
-        if (this.playing || this.paused) {
-          this.playing = false;
-          this.paused = false;
+        if (this.status !== this.IS_STOPPED) {
+          this.status = this.IS_STOPPED;
           this.startPosition = 0;
           return this.startPosition;
         } else {
@@ -249,9 +255,8 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     pause: {
       enumerable: true,
       value: function() {
-        if (this.playing) {
-          this.playing = false;
-          this.paused = true;
+        if (this.status === this.IS_PLAYING) {
+          this.status = this.IS_PAUSED;
           this.source.stop(0);
           // Measure how much time passed since the last pause.
           this.startPosition = this.startPosition + this.getElapsedDuration();
@@ -269,7 +274,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
     seek: {
       enumerable: true,
       value: function(pos) {
-        if (this.playing) {
+        if (this.status === this.IS_PLAYING) {
           this.stop();
           this.startPosition = pos % this.bufferDuration;
           this.start();
@@ -277,6 +282,17 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
           this.startPosition = pos % this.bufferDuration;
         }
         return this.startPosition;
+      }
+    },
+
+    /**
+     * Get player status.
+     * @public
+     */
+    getStatus: {
+      enumerable: true,
+      value: function() {
+        return this.status;
       }
     },
 
@@ -328,9 +344,9 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
           console.log("Elapsed duration on \'ended\' event:",
             that.getElapsedDuration() + that.startPosition,
             "sec");
-          if (!that.paused && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
+          if ((that.status !== this.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
             if (!that.loop) {
-              that.playing = false;
+              that.status = this.IS_STOPPED;
               that.startPosition = 0;
             }
             that.emit("ended", that.startPosition);
