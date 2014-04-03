@@ -22,13 +22,15 @@ describe("Sound: defs_audio_data.js", function() {
   var stepSpeed = 100;
   
   function isPlaying() {
-    assert.isTrue(self.player.playing, "is not in playing mode");
-    assert.isFalse(self.player.paused, "is in pause mode");  
+    assert.equal(self.player.status, self.player.IS_PLAYING, "is not in playing mode");
   }
   
-  function isInPause() {
-    assert.isFalse(self.player.playing, "is in playing mode");
-    assert.isTrue(self.player.paused, "is not in pause mode");  
+  function isPaused() {
+    assert.equal(self.player.status, self.player.IS_PAUSED, "is not in playing mode");
+  }
+  
+  function isStopped() {
+  	assert.equal(self.player.status, self.player.IS_STOPPED, "is not in playing mode");
   }
 
   it('my player start with offset at 0', function(done) {
@@ -58,7 +60,7 @@ describe("Sound: defs_audio_data.js", function() {
       var offset = self.player.startPosition;
       self.currentOffset = offset;
       assert.equal(offset, audioContext.currentTime, "offset of pause is not equals to audioContext.currentTime");
-      isInPause();
+      isPaused();
       done();
     }, stepSpeed);
   });
@@ -199,7 +201,7 @@ describe("Sound: defs_audio_data.js", function() {
     setTimeout(function() {
       self.player.pause();
       self.player.seek(1.2);
-      isInPause();
+      isPaused();
       done();
     }, stepSpeed*12);
   });
@@ -213,6 +215,16 @@ describe("Sound: defs_audio_data.js", function() {
       isPlaying();
       done();
     }, stepSpeed*13);
+  });
+  
+  it('set stop', function(done) {
+    this.timeout(myTimeout);
+
+    setTimeout(function() {
+      self.player.stop();
+      isStopped();
+      done();
+    }, stepSpeed*14);
   });
   
   
