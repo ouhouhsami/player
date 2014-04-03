@@ -106,7 +106,7 @@ describe("Sound: defs_audio_data.js", function() {
       var offset = self.player.startPosition;
       var overflow = (Math.floor(myAudioBuffer.duration) + 5) - myAudioBuffer.duration;
       assert.equal(offset, seek, "startPosition is not equal to seek return position");
-      assert.equal(offset, overflow, "overflow is not equal to startposition");
+      assert.closeTo(offset, overflow, 0.01, "overflow is not equal to startposition");
       done();
     }, stepSpeed*5);
   });
