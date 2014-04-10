@@ -21,7 +21,8 @@ The `player` object provides the following methods:
 ```js
     var audioContext = new AudioContext();
     var targetNode   = audioContext.destination;
-    bufferLoader.load('sound/file/path', onLoaded, audioContext);
+    var myBufferLoader = createBufferLoader();
+    myBufferLoader.load('sound/file/path', onLoaded, audioContext);
 
     function onLoaded(audioBuffer){
     	var player = createPlayer(audioBuffer, audioContext);
