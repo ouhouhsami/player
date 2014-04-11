@@ -1,6 +1,7 @@
 var assert = chai.assert;
 
-var audioContext = new webkitAudioContext();
+window.AudioContext = window.AudioContext||window.webkitAudioContext;
+var audioContext = new AudioContext();
 var targetNode = audioContext.destination;
 var player = null;
 var audioBuffer = null;
@@ -106,7 +107,7 @@ describe("Sound: defs_audio_data.js", function() {
       var offset = self.player.startPosition;
       var overflow = (Math.floor(myAudioBuffer.duration) + 5) - myAudioBuffer.duration;
       assert.equal(offset, seek, "startPosition is not equal to seek return position");
-      assert.closeTo(offset, overflow, 0.01, "overflow is not equal to startposition");
+      assert.closeTo(offset, overflow, 0.1, "overflow is not equal to startposition");
       done();
     }, stepSpeed*5);
   });
