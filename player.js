@@ -1,5 +1,5 @@
 !function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.createPlayer=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-/** 
+/**
  * @fileOverview
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
@@ -13,7 +13,7 @@ var events = _dereq_('events');
  * Function invocation pattern for a simple player.
  * @public
  */
-var createPlayer = function createPlayer(audioBuffer, audioContext) {
+var createPlayer = function createPlayer(audioBuffer) {
   'use strict';
 
   var eventEmitter = new events.EventEmitter();
@@ -83,9 +83,9 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
      */
     init: {
       enumerable: true,
-      value: function(audioBuffer, audioContext) {
+      value: function(audioBuffer) {
 
-        this.context = audioContext;
+        this.context = window.audioContext;
         this.setBuffer(audioBuffer);
         this.status = this.IS_STOPPED;
 
@@ -338,7 +338,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         var that = this;
 
         // Release source playing flag when the end of the buffer is reached.
-        // Issue: the event comes late and is emitted on every source.stop(), 
+        // Issue: the event comes late and is emitted on every source.stop(),
         // so it is necessary to check elapsed duration,
         // but speed changes can mess it up...
         this.source.onended = function() {
@@ -360,12 +360,13 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
 
   // Instantiate an object.
   var player = Object.create({}, playerObject);
-  return player.init(audioBuffer, audioContext);
+  return player.init(audioBuffer);
 };
 
 
 // CommonJS function export
 module.exports = createPlayer;
+
 },{"events":2}],2:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //

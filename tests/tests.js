@@ -21,27 +21,27 @@ describe("Sound: defs_audio_data.js", function() {
 
   var myTimeout = 200000;
   var stepSpeed = 100;
-  
+
   function isPlaying() {
     assert.equal(self.player.status, self.player.IS_PLAYING, "is not in playing mode");
   }
-  
+
   function isPaused() {
     assert.equal(self.player.status, self.player.IS_PAUSED, "is not in playing mode");
   }
-  
+
   function isStopped() {
-  	assert.equal(self.player.status, self.player.IS_STOPPED, "is not in playing mode");
+    assert.equal(self.player.status, self.player.IS_STOPPED, "is not in playing mode");
   }
 
   it('my player start with offset at 0', function(done) {
     this.timeout(myTimeout);
-    
-    var temp = Base64Binary.decodeArrayBuffer($theAudioFile);	
-	
-	audioContext.decodeAudioData(temp, function(audioBuffer) {
+
+    var temp = Base64Binary.decodeArrayBuffer($theAudioFile);
+
+  audioContext.decodeAudioData(temp, function(audioBuffer) {
       self.audioBuffer = audioBuffer;
-      self.player = createPlayer(self.audioBuffer, audioContext);
+      self.player = createPlayer(self.audioBuffer);
       self.player.connect(self.targetNode);
       var offset = self.player.start();
       assert.equal(offset, 0, "offset first start is not equal to 0");
@@ -50,7 +50,7 @@ describe("Sound: defs_audio_data.js", function() {
       isPlaying();
       done();
     });
-    
+
   });
 
   it('my player pause', function(done) {
@@ -124,7 +124,7 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*6);
   });
-  
+
   it('my player restart', function(done) {
     this.timeout(myTimeout);
 
@@ -136,12 +136,12 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*7);
   });
-  
+
   it('set speed', function(done) {
     this.timeout(myTimeout);
 
     setTimeout(function() {
-      self.player.seek(0); 
+      self.player.seek(0);
       var mySpeed = 1.2;
       self.player.setSpeed(mySpeed);
       assert.equal(mySpeed, self.player.speed, "speed player is not equal to mySpeed");
@@ -149,32 +149,32 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*8);
   });
-  
+
   it('set loop to true', function(done) {
     this.timeout(myTimeout);
 
     setTimeout(function() {
-      self.player.enableLoop(true); 
-      assert.isTrue(self.player.loop, "player loop is true");  
-      assert.isTrue(self.player.source.loop, "source loop is true");  
+      self.player.enableLoop(true);
+      assert.isTrue(self.player.loop, "player loop is true");
+      assert.isTrue(self.player.source.loop, "source loop is true");
       done();
     }, stepSpeed*9);
   });
-  
+
   it('set loop to false', function(done) {
     this.timeout(myTimeout);
 
     setTimeout(function() {
-      self.player.enableLoop(false); 
-      assert.isFalse(self.player.loop, "player loop is true");  
-      assert.isFalse(self.player.source.loop, "source loop is true");  
+      self.player.enableLoop(false);
+      assert.isFalse(self.player.loop, "player loop is true");
+      assert.isFalse(self.player.source.loop, "source loop is true");
       done();
     }, stepSpeed*10);
   });
-  
+
   it('can i hear sound ?', function(done){
     this.timeout(myTimeout);
-    
+
     setTimeout(function(){
       var bufferSize = 2048;
       var recorder = audioContext.createJavaScriptNode(bufferSize, 2, 2);
@@ -192,10 +192,10 @@ describe("Sound: defs_audio_data.js", function() {
       self.player.gainNode.connect(recorder);
       self.player.seek(0);
       recorder.connect(audioContext.destination);
-      
+
     }, stepSpeed*11);
   });
-  
+
   it('set pause and seek', function(done) {
     this.timeout(myTimeout);
 
@@ -206,7 +206,7 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*12);
   });
-  
+
   it('set play', function(done) {
     this.timeout(myTimeout);
 
@@ -217,7 +217,7 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*13);
   });
-  
+
   it('set stop', function(done) {
     this.timeout(myTimeout);
 
@@ -227,7 +227,7 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*14);
   });
-  
-  
+
+
 
 });

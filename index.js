@@ -1,4 +1,4 @@
-/** 
+/**
  * @fileOverview
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
@@ -12,7 +12,7 @@ var events = require('events');
  * Function invocation pattern for a simple player.
  * @public
  */
-var createPlayer = function createPlayer(audioBuffer, audioContext) {
+var createPlayer = function createPlayer(audioBuffer) {
   'use strict';
 
   var eventEmitter = new events.EventEmitter();
@@ -82,9 +82,9 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
      */
     init: {
       enumerable: true,
-      value: function(audioBuffer, audioContext) {
+      value: function(audioBuffer) {
 
-        this.context = audioContext;
+        this.context = window.audioContext;
         this.setBuffer(audioBuffer);
         this.status = this.IS_STOPPED;
 
@@ -337,7 +337,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
         var that = this;
 
         // Release source playing flag when the end of the buffer is reached.
-        // Issue: the event comes late and is emitted on every source.stop(), 
+        // Issue: the event comes late and is emitted on every source.stop(),
         // so it is necessary to check elapsed duration,
         // but speed changes can mess it up...
         this.source.onended = function() {
@@ -359,7 +359,7 @@ var createPlayer = function createPlayer(audioBuffer, audioContext) {
 
   // Instantiate an object.
   var player = Object.create({}, playerObject);
-  return player.init(audioBuffer, audioContext);
+  return player.init(audioBuffer);
 };
 
 

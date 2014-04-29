@@ -22,10 +22,10 @@ The `player` object provides the following methods:
     var audioContext = new AudioContext();
     var targetNode   = audioContext.destination;
     var myBufferLoader = createBufferLoader();
-    myBufferLoader.load('sound/file/path', onLoaded, audioContext);
+    myBufferLoader.load('sound/file/path', onLoaded);
 
     function onLoaded(audioBuffer){
-    	var player = createPlayer(audioBuffer, audioContext);
+    	var player = createPlayer(audioBuffer);
     	player.connect(targetNode); // unconnected by default
     	player.start();
     }
@@ -56,7 +56,7 @@ If grunt is not installed
 $ npm install -g grunt-cli
 ```
 
-Install all depencies in the module folder 
+Install all depencies in the module folder
 
 ```bash
 $ npm install
