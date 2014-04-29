@@ -78,6 +78,13 @@ describe("Sound play, pause, stop tests", function() {
     assert.equal(self.player.loop, true);
   });
 
+  it('should dispatch event on ended', function(done){
+    self.player.on('ended', function(){
+      done();
+    });
+    self.player.start();
+  });
+
 
   /*
   it('my player start with offset at 0', function(done) {
