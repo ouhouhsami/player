@@ -1,39 +1,85 @@
 var assert = chai.assert;
 
 window.AudioContext = window.AudioContext||window.webkitAudioContext;
+
+
+// Here we create a buffer to be used later with our player
 var audioContext = new AudioContext();
 var targetNode = audioContext.destination;
-var player = null;
-var audioBuffer = null;
-var currentOffset = null;
-var startTime = null;
+var buffer = audioContext.createBuffer(1, 44100, 44100);
+var data = buffer.getChannelData(0);
+for (i = 0; i < data.length; i++) {
+  data[i] = (Math.random() - 0.5) * 2;
+}
 
-describe("Sound: defs_audio_data.js", function() {
+describe("Sound play, pause, stop tests", function() {
   var self = this;
+  var player;
 
-  var myAudioBuffer = {
-    duration: 7.263106575963719,
-    gain: 1,
-    length: 320303,
-    numberOfChannels: 1,
-    sampleRate: 44100
-  };
+  beforeEach( function(){
+    console.log(player);
+    self.player = createPlayer(buffer);
+  });
 
-  var myTimeout = 200000;
-  var stepSpeed = 100;
+  it('should play when I play', function(){
+    self.player.start();
+    assert.equal(self.player.status, self.player.IS_PLAYING);
+    assert.equal(self.player.getStatus(), self.player.status);
+  });
 
-  function isPlaying() {
-    assert.equal(self.player.status, self.player.IS_PLAYING, "is not in playing mode");
-  }
+  it('should stop when I stop', function(){
+    self.player.start();
+    self.player.stop();
+    assert.equal(self.player.status, self.player.IS_STOPPED);
+    assert.equal(self.player.getStatus(), self.player.status);
+  });
 
-  function isPaused() {
-    assert.equal(self.player.status, self.player.IS_PAUSED, "is not in playing mode");
-  }
+  it('should pause when I pause', function(){
+    self.player.start();
+    self.player.pause();
+    assert.equal(self.player.status, self.player.IS_PAUSED);
+    assert.equal(self.player.getStatus(), self.player.status);
+  });
 
-  function isStopped() {
-    assert.equal(self.player.status, self.player.IS_STOPPED, "is not in playing mode");
-  }
+  it('should start with 0 offset', function(){
+    assert.equal(self.player.start(), 0);
+  });
 
+  it('should seek to the right time in non playing mode', function(){
+    self.player.seek(0.5);
+    assert.equal(self.player.startPosition, self.player.seek(0.5));
+  });
+
+  it('should seek to the right time in playing mode', function(){
+    self.player.start();
+    self.player.seek(0.5);
+    assert.equal(self.player.startPosition, self.player.seek(0.5));
+  });
+
+  it('should set gain correctly', function(){
+    self.player.setGain(3);
+    assert.equal(self.player.gain, 3);
+  });
+
+  it('should set speed correctly', function(){
+    // TODO: fix setSpeed which can't set speed prior to start !
+    self.player.setSpeed(3);
+    assert.equal(self.player.speed, 3);
+  });
+
+  it('should set loop mode in stop state', function(){
+    self.player.enableLoop(true);
+    assert.equal(self.player.loop, true);
+  });
+
+  it('should set loop mode in non stop state', function(){
+    self.player.start();
+    self.player.enableLoop(true);
+    assert.equal(self.player.loop, true);
+  });
+
+
+  /*
   it('my player start with offset at 0', function(done) {
     this.timeout(myTimeout);
 
@@ -227,6 +273,7 @@ describe("Sound: defs_audio_data.js", function() {
       done();
     }, stepSpeed*14);
   });
+*/
 
 
 
