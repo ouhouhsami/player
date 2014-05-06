@@ -346,9 +346,9 @@ var createPlayer = function createPlayer(audioBuffer) {
           console.log("Elapsed duration on \'ended\' event:",
             that.getElapsedDuration() + that.startPosition,
             "sec");
-          if ((that.status !== this.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
+          if ((that.status !== that.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
             if (!that.loop) {
-              that.status = this.IS_STOPPED;
+              that.status = that.IS_STOPPED;
               that.startPosition = 0;
             }
             that.emit("ended", that.startPosition);
