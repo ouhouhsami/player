@@ -173,7 +173,7 @@ var createPlayer = function createPlayer(audioBuffer) {
       value: function(val) {
         if (val) {
           this.speed = val;
-          if(this.source)
+          if (this.source)
             this.source.playbackRate.value = this.speed;
           return this; // for chainability
         } else {
@@ -261,9 +261,8 @@ var createPlayer = function createPlayer(audioBuffer) {
           this.source.stop(0);
           // Measure how much time passed since the last pause.
           this.startPosition = this.startPosition + this.getElapsedDuration();
-          
-          //TODO, check why pause() return this and stop and start return this.startPosition
-          return this;
+
+          return this.startPosition;
         } else {
           console.log("Not playing.");
         }
