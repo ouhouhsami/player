@@ -17,9 +17,14 @@ describe("Sound play, pause, stop tests", function() {
   var player;
 
   beforeEach( function(){
-    console.log(player);
     self.player = createPlayer(buffer);
+    self.player.connect(targetNode); 
   });
+  
+  afterEach( function(){
+    self.player.stop(); 
+  });
+
 
   it('should play when I play', function(){
     self.player.start();
@@ -47,7 +52,7 @@ describe("Sound play, pause, stop tests", function() {
 
   it('should seek to the right time in non playing mode', function(){
     self.player.seek(1.2);
-    assert.equal(self.player.startPosition, self.player.seek(0.2));
+    assert.closeTo(self.player.startPosition, self.player.seek(0.2), 0.1); //add closeT insted of assert because of float problem
   });
 
   it('should seek to the right time in non playing mode, even if seek is larger than buffer size', function(){
@@ -84,24 +89,33 @@ describe("Sound play, pause, stop tests", function() {
   });
 
   it('should dispatch event on ended', function(done){
+    this.timeout(15000);
     self.player.on('ended', function(){
       done();
     });
     self.player.start();
   });
 
-  it('should restart after a pause, at the right position', function(){
+  it('should restart after a pause, at the right position', function(done){
+    this.timeout(300);
+    
     // Not sure we need this test.
     self.player.start();
     setTimeout(function(){
-      assert.equal(self.player.pause(), self.player.start());
+      self.player.pause();
+      assert.equal(self.player.startPosition, self.player.start());
+      done();
     }, 200);
   });
 
-  it('should restart at 0, if end is reached and player restart', function(){
+  it('should restart at 0, if end is reached and player restart', function(done){
+    this.timeout(1200);
+    
     self.player.start();
     setTimeout(function(){
       assert.equal(self.player.start(), 0);
+      done();
+      self.player.stop();
     }, 1100); // as my buffer length is 1 sec, I just need to wait a bit more.
   });
 

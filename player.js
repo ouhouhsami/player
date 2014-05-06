@@ -174,7 +174,8 @@ var createPlayer = function createPlayer(audioBuffer) {
       value: function(val) {
         if (val) {
           this.speed = val;
-          this.source.playbackRate.value = this.speed;
+          if(this.source)
+            this.source.playbackRate.value = this.speed;
           return this; // for chainability
         } else {
           throw "Speed setting error";
