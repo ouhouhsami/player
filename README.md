@@ -62,7 +62,7 @@ Install all depencies in the module folder
 $ npm install
 ```
 
-Run the server on 9001 port (you can change the port in the Grunfile.js)
+Run the server on 9001 port (you can change the port in the gulpfile.js)
 
 ```bash
 $ gulp

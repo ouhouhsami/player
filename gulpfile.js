@@ -24,7 +24,7 @@ gulp.task('lib', function () {
     .bundle({
         standalone : name
     })
-    .pipe(source(packageJson.name + '.js'))
+    .pipe(source('lib.js'))
     .pipe(gulp.dest('./tests/'));
 });
 
