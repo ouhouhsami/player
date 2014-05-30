@@ -23,7 +23,7 @@ The `player` object provides the following methods:
     window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
     var targetNode = audioContext.destination;
-    var myBufferLoader = createBufferLoader(); // see our GitHub module
+    var myBufferLoader = createBufferLoader(); // see our 'buffer-loader' module
     myBufferLoader.load('sound/file/path', onLoaded);
 
     function onLoaded(audioBuffer){
@@ -33,6 +33,8 @@ The `player` object provides the following methods:
         player.start();
     }
 ```
+
+Note: our `BufferLoader` utility can be found at [https://github.com/Ircam-RnD/buffer-loader](https://github.com/Ircam-RnD/buffer-loader).
 
 ## API
 
