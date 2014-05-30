@@ -19,9 +19,11 @@ The `player` object provides the following methods:
 ## Example
 
 ```js
-    var audioContext = new AudioContext();
-    var targetNode   = audioContext.destination;
-    var myBufferLoader = createBufferLoader();
+    // Ensure global availability of an "audioContext" instance of web audio AudioContext.
+    window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
+
+    var targetNode = audioContext.destination;
+    var myBufferLoader = createBufferLoader(); // see our GitHub module
     myBufferLoader.load('sound/file/path', onLoaded);
 
     function onLoaded(audioBuffer){

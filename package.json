@@ -1,8 +1,8 @@
 {
   "name": "player",
   "exports": "createPlayer",
-  "version": "0.2.1",
-  "description": "Simple Web Audio API player",
+  "version": "0.2.2",
+  "description": "Simple audio player using the Web Audio API",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

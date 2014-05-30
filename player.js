@@ -4,7 +4,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
  * @author Karim Barkati
- * @version 0.2.1
+ * @version 0.2.2
  */
 
 var events = _dereq_('events');
@@ -16,6 +16,9 @@ var events = _dereq_('events');
 var createPlayer = function createPlayer(optionalAudioBuffer) {
   'use strict';
 
+  // Ensure global availability of an "audioContext" instance of web audio AudioContext.
+  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
+
   var eventEmitter = new events.EventEmitter();
 
   /**
@@ -25,9 +28,6 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
   var playerObject = {
 
     // Private properties
-    context: {
-      writable: true
-    },
     source: {
       writable: true
     },
@@ -85,7 +85,6 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
       enumerable: true,
       value: function(optionalAudioBuffer) {
 
-        this.context = window.audioContext;
         this.status = this.IS_STOPPED;
 
         if (optionalAudioBuffer) {
@@ -93,8 +92,8 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
         }
 
         // Create web audio nodes, relying on the given audio context.
-        this.gainNode = this.context.createGain();
-        this.outputNode = this.context.createGain(); // dummy node to provide a web audio-like output node
+        this.gainNode = audioContext.createGain();
+        this.outputNode = audioContext.createGain(); // dummy node to provide a web audio-like output node
 
         // this.on('ended', function() {
         //   console.log("Audio playing ended.");
@@ -112,7 +111,7 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
       enumerable: true,
       value: function(target) {
         this.outputNode = target;
-        this.gainNode.connect(this.outputNode || this.context.destination);
+        this.gainNode.connect(this.outputNode || audioContext.destination);
         return this; // for chainability
       }
     },
@@ -212,8 +211,8 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
         // Lock playing to avoid multiple sources creation.
         if (this.status !== this.IS_PLAYING) {
           // Configure a BufferSource.
-          this.startedAtTime = this.context.currentTime;
-          this.source = this.context.createBufferSource();
+          this.startedAtTime = audioContext.currentTime;
+          this.source = audioContext.createBufferSource();
           this.source.buffer = this.buffer;
           this.source.playbackRate.value = this.speed;
           this.source.loop = this.loop;
@@ -328,7 +327,7 @@ var createPlayer = function createPlayer(optionalAudioBuffer) {
     getElapsedDuration: {
       enumerable: false,
       value: function() {
-        return this.context.currentTime - this.startedAtTime;
+        return audioContext.currentTime - this.startedAtTime;
       }
     },
 
