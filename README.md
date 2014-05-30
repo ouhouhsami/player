@@ -22,14 +22,15 @@ The `player` object provides the following methods:
     // Ensure global availability of an "audioContext" instance of web audio AudioContext.
     window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
+    var player = createPlayer();
     var targetNode = audioContext.destination;
+    player.connect(targetNode); // player unconnected by default
+
     var myBufferLoader = createBufferLoader(); // see our 'buffer-loader' module
     myBufferLoader.load('sound/file/path', onLoaded);
 
     function onLoaded(audioBuffer){
-        var player = createPlayer();
         player.setBuffer(audioBuffer);
-        player.connect(targetNode); // unconnected by default
         player.start();
     }
 ```
