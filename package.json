@@ -1,14 +1,14 @@
 {
   "name": "player",
   "exports": "createPlayer",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "description": "Simple Web Audio API player",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Karim Barkati",
-  "license": "BSD-3",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "grunt": "~0.4.2",
     "browserify": "~3.32.0",

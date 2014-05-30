@@ -25,9 +25,10 @@ The `player` object provides the following methods:
     myBufferLoader.load('sound/file/path', onLoaded);
 
     function onLoaded(audioBuffer){
-    	var player = createPlayer(audioBuffer);
-    	player.connect(targetNode); // unconnected by default
-    	player.start();
+        var player = createPlayer();
+        player.setBuffer(audioBuffer);
+        player.connect(targetNode); // unconnected by default
+        player.start();
     }
 ```
 
@@ -47,6 +48,8 @@ Method | Description
 `player.enableLoop(bool)` | Enable or disable looping playback.
 `player.on('ended', function() { ... })` | Listen to the `'ended'` event.
 `player.getStatus()` | Get player status (`IS_PLAYING`, `IS_PAUSED`, `IS_STOPPED`).
+
+The Player object creation is done with a `createPlayer(optionalAudioBuffer)` call.
 
 ## Tests
 

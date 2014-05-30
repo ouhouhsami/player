@@ -3,7 +3,7 @@
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
  * @author Karim Barkati
- * @version 0.2.0
+ * @version 0.2.1
  */
 
 var events = require('events');
@@ -12,7 +12,7 @@ var events = require('events');
  * Function invocation pattern for a simple player.
  * @public
  */
-var createPlayer = function createPlayer(audioBuffer) {
+var createPlayer = function createPlayer(optionalAudioBuffer) {
   'use strict';
 
   var eventEmitter = new events.EventEmitter();
@@ -82,11 +82,14 @@ var createPlayer = function createPlayer(audioBuffer) {
      */
     init: {
       enumerable: true,
-      value: function(audioBuffer) {
+      value: function(optionalAudioBuffer) {
 
         this.context = window.audioContext;
-        this.setBuffer(audioBuffer);
         this.status = this.IS_STOPPED;
+
+        if (optionalAudioBuffer) {
+          this.setBuffer(optionalAudioBuffer);
+        }
 
         // Create web audio nodes, relying on the given audio context.
         this.gainNode = this.context.createGain();
@@ -361,7 +364,7 @@ var createPlayer = function createPlayer(audioBuffer) {
 
   // Instantiate an object.
   var player = Object.create({}, playerObject);
-  return player.init(audioBuffer);
+  return player.init(optionalAudioBuffer);
 };
 
 
