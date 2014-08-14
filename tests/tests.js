@@ -1,7 +1,11 @@
+// Test dependencies
+chai = require('chai');
+AudioContext = require('web-audio-api').AudioContext;
+
+window = global;
 var assert = chai.assert;
 
-window.AudioContext = window.AudioContext||window.webkitAudioContext;
-
+Player = require('../index.js');
 
 // Here we create a buffer to be used later with our player
 var audioContext = new AudioContext();
@@ -17,12 +21,12 @@ describe("Sound play, pause, stop tests", function() {
   var player;
 
   beforeEach( function(){
-    self.player = createPlayer(buffer);
-    self.player.connect(targetNode); 
+    self.player = new Player(buffer);
+    self.player.connect(targetNode);
   });
-  
+
   afterEach( function(){
-    self.player.stop(); 
+    self.player.stop();
   });
 
 
@@ -89,7 +93,7 @@ describe("Sound play, pause, stop tests", function() {
   });
 
   it('should dispatch event on ended', function(done){
-    this.timeout(15000);
+    this.timeout(2000);
     self.player.on('ended', function(){
       done();
     });
@@ -98,7 +102,7 @@ describe("Sound play, pause, stop tests", function() {
 
   it('should restart after a pause, at the right position', function(done){
     this.timeout(300);
-    
+
     // Not sure we need this test.
     self.player.start();
     setTimeout(function(){
@@ -110,7 +114,7 @@ describe("Sound play, pause, stop tests", function() {
 
   it('should restart at 0, if end is reached and player restart', function(done){
     this.timeout(1200);
-    
+
     self.player.start();
     setTimeout(function(){
       assert.equal(self.player.start(), 0);

@@ -1,376 +1,303 @@
-!function(e){if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.createPlayer=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Player=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 /**
  * @fileOverview
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
- * @author Karim Barkati
- * @version 0.2.2
+ * @author Karim Barkati, Samuel Goldszmidt
+ * @version 1.2.2
  */
 
+'use strict'
+
+_dereq_("audio-context"); //make an AudioContext instance globally available
 var events = _dereq_('events');
 
-/**
- * Function invocation pattern for a simple player.
- * @public
- */
-var createPlayer = function createPlayer(optionalAudioBuffer) {
-  'use strict';
+var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = function(t,s){for(var p in s){if(s.hasOwnProperty(p)){DP$0(t,p,Object.getOwnPropertyDescriptor(s,p));}}return t};MIXIN$0(Player, super$0);
 
-  // Ensure global availability of an "audioContext" instance of web audio AudioContext.
-  window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
+  function Player(buffer) {
+    // private properties
+    Object.defineProperties(Player.prototype, {
+      source: {
+        writable: true
+      },
+      buffer: {
+        writable: true
+      },
+      gainNode: {
+        writable: true
+      },
+      outputNode: {
+        writable: true
+      },
+      speed: {
+        writable: true,
+        value: 1
+      },
+      gain: {
+        writable: true
+      },
+      loop: {
+        writable: true,
+        value: false
+      },
 
-  var eventEmitter = new events.EventEmitter();
+      // For resuming after pause
+      startPosition: {
+        writable: true,
+        value: 0
+      },
+      startedAtTime: {
+        writable: true,
+        value: 0
+      },
 
-  /**
-   * Simple player object as an ECMAScript5 properties object.
-   */
-
-  var playerObject = {
-
-    // Private properties
-    source: {
-      writable: true
-    },
-    buffer: {
-      writable: true
-    },
-    gainNode: {
-      writable: true
-    },
-    outputNode: {
-      writable: true
-    },
-    speed: {
-      writable: true,
-      value: 1
-    },
-    gain: {
-      writable: true
-    },
-    loop: {
-      writable: true,
-      value: false
-    },
-
-    // For resuming after pause
-    startPosition: {
-      writable: true,
-      value: 0
-    },
-    startedAtTime: {
-      writable: true,
-      value: 0
-    },
-
-    // Player status
-    IS_PLAYING: {
-      value: "is_playing"
-    },
-    IS_PAUSED: {
-      value: "is_paused"
-    },
-    IS_STOPPED: {
-      value: "is_stopped"
-    },
-    status: {
-      writable: true
-    },
+      // Player status
+      IS_PLAYING: {
+        value: "is_playing"
+      },
+      IS_PAUSED: {
+        value: "is_paused"
+      },
+      IS_STOPPED: {
+        value: "is_stopped"
+      },
+      status: {
+        writable: true
+      }
+    });
 
     /**
      * Mandatory initialization method.
      * @public
      * @chainable
      */
-    init: {
-      enumerable: true,
-      value: function(optionalAudioBuffer) {
+    this.status = this.IS_STOPPED;
 
-        this.status = this.IS_STOPPED;
+    if (buffer) {
+      this.setBuffer(buffer);
+    }
 
-        if (optionalAudioBuffer) {
-          this.setBuffer(optionalAudioBuffer);
+    // Create web audio nodes, relying on the given audio context.
+    this.gainNode = window.audioContext.createGain();
+    this.outputNode = window.audioContext.createGain(); // dummy node to provide a web audio-like output node
+
+    // this.on('ended', function() {
+    //   console.log("Audio playing ended.");
+    // });
+    return this; // for chainability
+  }Player.prototype = Object.create(super$0.prototype, {"constructor": {"value": Player, "configurable": true, "writable": true} });DP$0(Player, "prototype", {"configurable": false, "enumerable": false, "writable": false});
+
+  /**
+   * Web audio API-like connect method.
+   * @public
+   * @chainable
+   */
+  Player.prototype.connect = function(target) {
+    this.outputNode = target;
+    this.gainNode.connect(this.outputNode || window.audioContext.destination);
+    return this; // for chainability
+  }
+
+  /**
+   * Web audio API-like disconnect method.
+   * @public
+   * @chainable
+   */
+  Player.prototype.disconnect = function(output) {
+    this.gainNode.disconnect(output);
+    return this; // for chainability
+  }
+
+  /**
+   * Set buffer and bufferDuration.
+   * @public
+   * @chainable
+   */
+  Player.prototype.setBuffer = function(buffer) {
+    if (buffer) {
+      this.buffer = buffer;
+      this.bufferDuration = buffer.duration;
+      return this; // for chainability
+    } else {
+      throw new Error("Buffer setting error");
+    }
+  }
+
+  /**
+   * Set gain value and squared volume.
+   * @public
+   * @chainable
+   */
+  Player.prototype.setGain = function(gain) {
+    if (gain) {
+      this.gain = gain;
+      // Let's use an x-squared curve since simple linear (x) does not sound as good.
+      this.gainNode.gain.value = gain * gain;
+      return this; // for chainability
+    } else {
+      throw new Error("Gain setting error");
+    }
+  }
+
+  /**
+   * Set playback speed.
+   * @public
+   * @chainable
+   */
+  Player.prototype.setSpeed = function(val) {
+    if (val) {
+      this.speed = val;
+      if (this.source)
+        this.source.playbackRate.value = this.speed;
+      return this; // for chainability
+    } else {
+      throw new Error("Speed setting error");
+    }
+  }
+
+  /**
+   * Enable or disable looping playback.
+   * @public
+   * @chainable
+   */
+  Player.prototype.enableLoop = function(bool) {
+    this.loop = bool;
+    if (this.status !== this.IS_STOPPED) {
+      this.source.loop = this.loop;
+    }
+    return this; // for chainability
+  }
+
+  /**
+   * Start playing.
+   * @public
+   */
+  Player.prototype.start = function() {
+    // Lock playing to avoid multiple sources creation.
+    if (this.status !== this.IS_PLAYING) {
+      // Configure a BufferSource.
+      this.startedAtTime = window.audioContext.currentTime;
+      this.source = window.audioContext.createBufferSource();
+      this.source.buffer = this.buffer;
+      this.source.playbackRate.value = this.speed;
+      this.source.loop = this.loop;
+      this.source.connect(this.gainNode);
+
+      // Resume but make sure we stay in bound of the buffer.
+      var offset = this.startPosition % this.buffer.duration;
+      this.source.start(0, offset); // optional 3rd argument as duration
+      this.status = this.IS_PLAYING;
+
+      this.setOnendedCallback();
+
+      return offset;
+    } else {
+      //console.log("Already playing.");
+    }
+  }
+
+  /**
+   * Stop playing.
+   * @public
+   */
+  Player.prototype.stop = function() {
+    if (this.status === this.IS_PLAYING) {
+      this.source.stop(0);
+    }
+    if (this.status !== this.IS_STOPPED) {
+      this.status = this.IS_STOPPED;
+      this.startPosition = 0;
+      return this.startPosition;
+    } else {
+      //console.log("Already stopped.");
+    }
+  }
+
+  /**
+   * Pause playing.
+   * @public
+   */
+  Player.prototype.pause = function() {
+    if (this.status === this.IS_PLAYING) {
+      this.status = this.IS_PAUSED;
+      this.source.stop(0);
+      // Measure how much time passed since the last pause.
+      this.startPosition = this.startPosition + this.getElapsedDuration();
+
+      return this.startPosition;
+    } else {
+      //console.log("Not playing.");
+    }
+  }
+
+  /**
+   * Seek buffer position (in sec).
+   * @public
+   */
+  Player.prototype.seek = function(pos) {
+    if (this.status === this.IS_PLAYING) {
+      this.stop();
+      this.startPosition = pos % this.bufferDuration;
+      this.start();
+    } else {
+      this.startPosition = pos % this.bufferDuration;
+    }
+    return this.startPosition;
+  }
+
+  /**
+   * Get player status.
+   * @public
+   */
+  Player.prototype.getStatus = function() {
+    return this.status;
+  }
+
+  /**
+   * Compute elapsed duration since previous position change.
+   * @private
+   * @todo Handle speed changes.
+   */
+  Player.prototype.getElapsedDuration = function() {
+    return window.audioContext.currentTime - this.startedAtTime;
+  }
+
+  /**
+   * Release playing flag when the end of the buffer is reached.
+   * @private
+   * @todo Handle speed changes.
+   */
+  Player.prototype.setOnendedCallback = function() {
+    var that = this;
+    // Release source playing flag when the end of the buffer is reached.
+    // Issue: the event comes late and is emitted on every source.stop(),
+    // so it is necessary to check elapsed duration,
+    // but speed changes can mess it up...
+    this.source.onended = function() {
+      //console.log("Elapsed duration on \'ended\' event:",
+      //  that.getElapsedDuration() + that.startPosition,
+      //  "sec");
+      if ((that.status !== that.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
+        if (!that.loop) {
+          that.status = that.IS_STOPPED;
+          that.startPosition = 0;
         }
-
-        // Create web audio nodes, relying on the given audio context.
-        this.gainNode = audioContext.createGain();
-        this.outputNode = audioContext.createGain(); // dummy node to provide a web audio-like output node
-
-        // this.on('ended', function() {
-        //   console.log("Audio playing ended.");
-        // });
-        return this; // for chainability
+        that.emit("ended", that.startPosition);
       }
-    },
-
-    /**
-     * Web audio API-like connect method.
-     * @public
-     * @chainable
-     */
-    connect: {
-      enumerable: true,
-      value: function(target) {
-        this.outputNode = target;
-        this.gainNode.connect(this.outputNode || audioContext.destination);
-        return this; // for chainability
-      }
-    },
-
-    /**
-     * Web audio API-like disconnect method.
-     * @public
-     * @chainable
-     */
-    disconnect: {
-      enumerable: true,
-      value: function(output) {
-        this.gainNode.disconnect(output);
-        return this; // for chainability
-      }
-    },
-
-    /**
-     * Set buffer and bufferDuration.
-     * @public
-     * @chainable
-     */
-    setBuffer: {
-      enumerable: true,
-      value: function(buffer) {
-        if (buffer) {
-          this.buffer = buffer;
-          this.bufferDuration = buffer.duration;
-          return this; // for chainability
-        } else {
-          throw "Buffer setting error";
-        }
-      }
-    },
-
-    /**
-     * Set gain value and squared volume.
-     * @public
-     * @chainable
-     */
-    setGain: {
-      enumerable: true,
-      value: function(gain) {
-        if (gain) {
-          this.gain = gain;
-          // Let's use an x-squared curve since simple linear (x) does not sound as good.
-          this.gainNode.gain.value = gain * gain;
-          return this; // for chainability
-        } else {
-          throw "Gain setting error";
-        }
-      }
-    },
-
-    /**
-     * Set playback speed.
-     * @public
-     * @chainable
-     */
-    setSpeed: {
-      enumerable: true,
-      value: function(val) {
-        if (val) {
-          this.speed = val;
-          if (this.source)
-            this.source.playbackRate.value = this.speed;
-          return this; // for chainability
-        } else {
-          throw "Speed setting error";
-        }
-      }
-    },
-
-    /**
-     * Enable or disable looping playback.
-     * @public
-     * @chainable
-     */
-    enableLoop: {
-      enumerable: true,
-      value: function(bool) {
-        this.loop = bool;
-        if (this.status !== this.IS_STOPPED) {
-          this.source.loop = this.loop;
-        }
-        return this; // for chainability
-      }
-    },
-
-    /**
-     * Start playing.
-     * @public
-     */
-    start: {
-      enumerable: true,
-      value: function() {
-        // Lock playing to avoid multiple sources creation.
-        if (this.status !== this.IS_PLAYING) {
-          // Configure a BufferSource.
-          this.startedAtTime = audioContext.currentTime;
-          this.source = audioContext.createBufferSource();
-          this.source.buffer = this.buffer;
-          this.source.playbackRate.value = this.speed;
-          this.source.loop = this.loop;
-          this.source.connect(this.gainNode);
-
-          // Resume but make sure we stay in bound of the buffer.
-          var offset = this.startPosition % this.buffer.duration;
-          this.source.start(0, offset); // optional 3rd argument as duration
-          this.status = this.IS_PLAYING;
-
-          this.setOnendedCallback();
-
-          return offset;
-        } else {
-          console.log("Already playing.");
-        }
-      }
-    },
-
-    /**
-     * Stop playing.
-     * @public
-     */
-    stop: {
-      enumerable: true,
-      value: function() {
-        if (this.status === this.IS_PLAYING) {
-          this.source.stop(0);
-        }
-        if (this.status !== this.IS_STOPPED) {
-          this.status = this.IS_STOPPED;
-          this.startPosition = 0;
-          return this.startPosition;
-        } else {
-          console.log("Already stopped.");
-        }
-      }
-    },
-
-    /**
-     * Pause playing.
-     * @public
-     */
-    pause: {
-      enumerable: true,
-      value: function() {
-        if (this.status === this.IS_PLAYING) {
-          this.status = this.IS_PAUSED;
-          this.source.stop(0);
-          // Measure how much time passed since the last pause.
-          this.startPosition = this.startPosition + this.getElapsedDuration();
-
-          return this.startPosition;
-        } else {
-          console.log("Not playing.");
-        }
-      }
-    },
-
-    /**
-     * Seek buffer position (in sec).
-     * @public
-     */
-    seek: {
-      enumerable: true,
-      value: function(pos) {
-        if (this.status === this.IS_PLAYING) {
-          this.stop();
-          this.startPosition = pos % this.bufferDuration;
-          this.start();
-        } else {
-          this.startPosition = pos % this.bufferDuration;
-        }
-        return this.startPosition;
-      }
-    },
-
-    /**
-     * Get player status.
-     * @public
-     */
-    getStatus: {
-      enumerable: true,
-      value: function() {
-        return this.status;
-      }
-    },
-
-    /**
-     * Event listener.
-     * @public
-     */
-    on: {
-      enumerable: true,
-      value: eventEmitter.on
-    },
-
-    /**
-     * Event emitter.
-     * @private
-     */
-    emit: {
-      enumerable: false,
-      value: eventEmitter.emit
-    },
-
-    /**
-     * Compute elapsed duration since previous position change.
-     * @private
-     * @todo Handle speed changes.
-     */
-    getElapsedDuration: {
-      enumerable: false,
-      value: function() {
-        return audioContext.currentTime - this.startedAtTime;
-      }
-    },
-
-    /**
-     * Release playing flag when the end of the buffer is reached.
-     * @private
-     * @todo Handle speed changes.
-     */
-    setOnendedCallback: {
-      enumerable: false,
-      value: function() {
-        var that = this;
-
-        // Release source playing flag when the end of the buffer is reached.
-        // Issue: the event comes late and is emitted on every source.stop(),
-        // so it is necessary to check elapsed duration,
-        // but speed changes can mess it up...
-        this.source.onended = function() {
-          console.log("Elapsed duration on \'ended\' event:",
-            that.getElapsedDuration() + that.startPosition,
-            "sec");
-          if ((that.status !== that.IS_PAUSED) && (that.getElapsedDuration() + that.startPosition > that.bufferDuration)) {
-            if (!that.loop) {
-              that.status = that.IS_STOPPED;
-              that.startPosition = 0;
-            }
-            that.emit("ended", that.startPosition);
-          }
-        };
-      }
-    },
-
-  };
-
-  // Instantiate an object.
-  var player = Object.create({}, playerObject);
-  return player.init(optionalAudioBuffer);
-};
-
+    }
+  }
+;return Player;})(events.EventEmitter);
 
 // CommonJS function export
-module.exports = createPlayer;
-},{"events":2}],2:[function(_dereq_,module,exports){
+module.exports = Player;
+
+},{"audio-context":2,"events":3}],2:[function(_dereq_,module,exports){
+/* Generated by es6-transpiler v 0.7.14-2 */
+// instantiates an audio context in the global scope if not there already
+var context = window.audioContext || new AudioContext();
+window.audioContext = context;
+module.exports = context;
+},{}],3:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -518,7 +445,10 @@ EventEmitter.prototype.addListener = function(type, listener) {
                     'leak detected. %d listeners added. ' +
                     'Use emitter.setMaxListeners() to increase limit.',
                     this._events[type].length);
-      console.trace();
+      if (typeof console.trace === 'function') {
+        // not supported in IE 10
+        console.trace();
+      }
     }
   }
 

@@ -22,17 +22,19 @@ The `player` object provides the following methods:
     // Ensure global availability of an "audioContext" instance of web audio AudioContext.
     window.audioContext = window.audioContext || new AudioContext() || new webkitAudioContext();
 
-    var player = createPlayer();
+    var player = new Player();
     var targetNode = audioContext.destination;
     player.connect(targetNode); // player unconnected by default
 
-    var myBufferLoader = createBufferLoader(); // see our 'buffer-loader' module
-    myBufferLoader.load('sound/file/path', onLoaded);
+    var myBufferLoader = new BufferLoader(); // see our 'buffer-loader' module
+    myBufferLoader.load('sound/file/path').then(
+        function(audioBuffer){
+            player.setBuffer(audioBuffer);
+            player.start();
+        }
+    );
 
-    function onLoaded(audioBuffer){
-        player.setBuffer(audioBuffer);
-        player.start();
-    }
+
 ```
 
 Note: our `BufferLoader` utility can be found at [https://github.com/Ircam-RnD/buffer-loader](https://github.com/Ircam-RnD/buffer-loader).
@@ -54,14 +56,12 @@ Method | Description
 `player.on('ended', function() { ... })` | Listen to the `'ended'` event.
 `player.getStatus()` | Get player status (`IS_PLAYING`, `IS_PAUSED`, `IS_STOPPED`).
 
-The Player object creation is done with a `createPlayer(optionalAudioBuffer)` call.
-
 ## Tests
 
-If grunt is not installed
+If gulp is not installed
 
 ```bash
-$ npm install -g grunt-cli
+$ npm install -g gulp
 ```
 
 Install all depencies in the module folder
@@ -73,10 +73,8 @@ $ npm install
 Run the server on 9001 port (you can change the port in the Grunfile.js)
 
 ```bash
-$ grunt test
+$ mocha tests/test.js
 ```
-
-Run the test via the web browser on `http://localhost:9001/tests`
 
 ## License
 
