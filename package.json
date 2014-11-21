@@ -3,7 +3,7 @@
   "exports": "Player",
   "version": "0.2.2",
   "description": "Simple audio player using the Web Audio API",
-  "main": "index.js",
+  "main": "player.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
