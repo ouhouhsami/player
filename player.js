@@ -282,6 +282,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
           that.status = that.IS_STOPPED;
           that.startPosition = 0;
         }
+
         that.emit("ended", that.startPosition);
       }
     }
@@ -297,6 +298,7 @@ module.exports = Player;
 var context = window.audioContext || new AudioContext();
 window.audioContext = context;
 module.exports = context;
+
 },{}],3:[function(_dereq_,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //

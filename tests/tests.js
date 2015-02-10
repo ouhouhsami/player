@@ -5,15 +5,19 @@ AudioContext = require('web-audio-api').AudioContext;
 window = global;
 var assert = chai.assert;
 
+
+var audioContext = new AudioContext();
+window.audioContext = audioContext; // yes, this is a mess to have one and right audioContext
 Player = require('../index.js');
+var targetNode = audioContext.destination;
 
 // Here we create a buffer to be used later with our player
-var audioContext = new AudioContext();
-var targetNode = audioContext.destination;
-var buffer = audioContext.createBuffer(1, 44100, 44100);
-var data = buffer.getChannelData(0);
-for (i = 0; i < data.length; i++) {
-  data[i] = (Math.random() - 0.5) * 2;
+var buffer = audioContext.createBuffer(2, 44100, 44100);
+var dataLeft = buffer.getChannelData(0);
+var dataRight = buffer.getChannelData(1);
+for (i = 0; i < dataLeft.length; i++) {
+  dataLeft[i] = (Math.random() - 0.5) * 2;
+  dataRight[i] = (Math.random() - 0.5) * 2;
 }
 
 describe("Sound play, pause, stop tests", function() {
@@ -93,11 +97,12 @@ describe("Sound play, pause, stop tests", function() {
   });
 
   it('should dispatch event on ended', function(done){
-    this.timeout(2000);
+    this.timeout(3000);
+    var i = 1
     self.player.on('ended', function(){
       done();
     });
-    self.player.start();
+    self.player.start(0.5);
   });
 
   it('should restart after a pause, at the right position', function(done){

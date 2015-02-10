@@ -281,6 +281,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
           that.status = that.IS_STOPPED;
           that.startPosition = 0;
         }
+
         that.emit("ended", that.startPosition);
       }
     }
