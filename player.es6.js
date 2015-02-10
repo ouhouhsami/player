@@ -2,18 +2,18 @@
  * @fileOverview
  * WAVE audio library module for buffer playing.
  * Caution: speed changes may harm state handling.
- * @author Karim Barkati, Samuel Goldszmidt
+ * @author Karim Barkati
  * @version 1.2.2
  */
 
 'use strict'
 
-require("audio-context"); //make an AudioContext instance globally available
+var audioContext = require("audio-context"); //make an AudioContext instance globally available
 var events = require('events');
 
-var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = function(t,s){for(var p in s){if(s.hasOwnProperty(p)){DP$0(t,p,Object.getOwnPropertyDescriptor(s,p));}}return t};MIXIN$0(Player, super$0);
+class Player extends events.EventEmitter {
 
-  function Player(buffer) {
+  constructor(buffer) {
     // private properties
     Object.defineProperties(Player.prototype, {
       source: {
@@ -77,23 +77,23 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
     }
 
     // Create web audio nodes, relying on the given audio context.
-    this.gainNode = window.audioContext.createGain();
-    this.outputNode = window.audioContext.createGain(); // dummy node to provide a web audio-like output node
+    this.gainNode = audioContext.createGain();
+    this.outputNode = audioContext.createGain(); // dummy node to provide a web audio-like output node
 
     // this.on('ended', function() {
     //   console.log("Audio playing ended.");
     // });
     return this; // for chainability
-  }Player.prototype = Object.create(super$0.prototype, {"constructor": {"value": Player, "configurable": true, "writable": true} });DP$0(Player, "prototype", {"configurable": false, "enumerable": false, "writable": false});
+  }
 
   /**
    * Web audio API-like connect method.
    * @public
    * @chainable
    */
-  Player.prototype.connect = function(target) {
+  connect(target) {
     this.outputNode = target;
-    this.gainNode.connect(this.outputNode || window.audioContext.destination);
+    this.gainNode.connect(this.outputNode || audioContext.destination);
     return this; // for chainability
   }
 
@@ -102,7 +102,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @public
    * @chainable
    */
-  Player.prototype.disconnect = function(output) {
+  disconnect(output) {
     this.gainNode.disconnect(output);
     return this; // for chainability
   }
@@ -112,7 +112,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @public
    * @chainable
    */
-  Player.prototype.setBuffer = function(buffer) {
+  setBuffer(buffer) {
     if (buffer) {
       this.buffer = buffer;
       this.bufferDuration = buffer.duration;
@@ -127,7 +127,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @public
    * @chainable
    */
-  Player.prototype.setGain = function(gain) {
+  setGain(gain) {
     if (gain) {
       this.gain = gain;
       // Let's use an x-squared curve since simple linear (x) does not sound as good.
@@ -143,7 +143,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @public
    * @chainable
    */
-  Player.prototype.setSpeed = function(val) {
+  setSpeed(val) {
     if (val) {
       this.speed = val;
       if (this.source)
@@ -159,7 +159,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @public
    * @chainable
    */
-  Player.prototype.enableLoop = function(bool) {
+  enableLoop(bool) {
     this.loop = bool;
     if (this.status !== this.IS_STOPPED) {
       this.source.loop = this.loop;
@@ -171,12 +171,12 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * Start playing.
    * @public
    */
-  Player.prototype.start = function() {
+  start() {
     // Lock playing to avoid multiple sources creation.
     if (this.status !== this.IS_PLAYING) {
       // Configure a BufferSource.
-      this.startedAtTime = window.audioContext.currentTime;
-      this.source = window.audioContext.createBufferSource();
+      this.startedAtTime = audioContext.currentTime;
+      this.source = audioContext.createBufferSource();
       this.source.buffer = this.buffer;
       this.source.playbackRate.value = this.speed;
       this.source.loop = this.loop;
@@ -199,7 +199,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * Stop playing.
    * @public
    */
-  Player.prototype.stop = function() {
+  stop() {
     if (this.status === this.IS_PLAYING) {
       this.source.stop(0);
     }
@@ -216,7 +216,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * Pause playing.
    * @public
    */
-  Player.prototype.pause = function() {
+  pause() {
     if (this.status === this.IS_PLAYING) {
       this.status = this.IS_PAUSED;
       this.source.stop(0);
@@ -233,7 +233,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * Seek buffer position (in sec).
    * @public
    */
-  Player.prototype.seek = function(pos) {
+  seek(pos) {
     if (this.status === this.IS_PLAYING) {
       this.stop();
       this.startPosition = pos % this.bufferDuration;
@@ -248,7 +248,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * Get player status.
    * @public
    */
-  Player.prototype.getStatus = function() {
+  getStatus() {
     return this.status;
   }
 
@@ -257,8 +257,8 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @private
    * @todo Handle speed changes.
    */
-  Player.prototype.getElapsedDuration = function() {
-    return window.audioContext.currentTime - this.startedAtTime;
+  getElapsedDuration() {
+    return audioContext.currentTime - this.startedAtTime;
   }
 
   /**
@@ -266,7 +266,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
    * @private
    * @todo Handle speed changes.
    */
-  Player.prototype.setOnendedCallback = function() {
+  setOnendedCallback() {
     var that = this;
     // Release source playing flag when the end of the buffer is reached.
     // Issue: the event comes late and is emitted on every source.stop(),
@@ -286,7 +286,7 @@ var Player = (function(super$0){var DP$0 = Object.defineProperty;var MIXIN$0 = f
       }
     }
   }
-;return Player;})(events.EventEmitter);
+}
 
 // CommonJS function export
 module.exports = Player;

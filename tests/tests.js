@@ -1,21 +1,15 @@
-// Test dependencies
-chai = require('chai');
-AudioContext = require('web-audio-api').AudioContext;
+//chai = require('chai');
+var assert = require('assert');
+var audioContext = require("audio-context")
 
-window = global;
-var assert = chai.assert;
-
-
-var audioContext = new AudioContext();
-window.audioContext = audioContext; // yes, this is a mess to have one and right audioContext
-Player = require('../index.js');
+var Player = require('../player.es6.js');
 var targetNode = audioContext.destination;
 
 // Here we create a buffer to be used later with our player
 var buffer = audioContext.createBuffer(2, 44100, 44100);
 var dataLeft = buffer.getChannelData(0);
 var dataRight = buffer.getChannelData(1);
-for (i = 0; i < dataLeft.length; i++) {
+for (var i = 0; i < dataLeft.length; i++) {
   dataLeft[i] = (Math.random() - 0.5) * 2;
   dataRight[i] = (Math.random() - 0.5) * 2;
 }
@@ -32,7 +26,6 @@ describe("Sound play, pause, stop tests", function() {
   afterEach( function(){
     self.player.stop();
   });
-
 
   it('should play when I play', function(){
     self.player.start();
@@ -60,7 +53,7 @@ describe("Sound play, pause, stop tests", function() {
 
   it('should seek to the right time in non playing mode', function(){
     self.player.seek(1.2);
-    assert.closeTo(self.player.startPosition, self.player.seek(0.2), 0.1); //add closeT insted of assert because of float problem
+    assert(Math.abs(self.player.startPosition - self.player.seek(0.2)) < 0.1);
   });
 
   it('should seek to the right time in non playing mode, even if seek is larger than buffer size', function(){
@@ -107,7 +100,6 @@ describe("Sound play, pause, stop tests", function() {
 
   it('should restart after a pause, at the right position', function(done){
     this.timeout(300);
-
     // Not sure we need this test.
     self.player.start();
     setTimeout(function(){

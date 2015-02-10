@@ -3,23 +3,20 @@
   "exports": "Player",
   "version": "0.2.2",
   "description": "Simple audio player using the Web Audio API",
-  "main": "index.js",
+  "main": "player.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "authors": ["Karim Barkati", "Samuel Goldszmidt"],
+  "author": "Karim Barkati",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "blanket": "~1.1.6",
-    "fs-utils": "0.4.3",
-    "browserify": "~4.1.2",
-    "mocha": "~1.17.1",
-    "chai": "~1.9.0",
-    "gulp": "~3.8.2",
-    "module-boilerplate": "git://github.com/Ircam-RnD/module-boilerplate.git#master",
-    "web-audio-api": "git+https://github.com/sebpiq/node-web-audio-api.git"
+    "tac6": "git://github.com/ircam-rnd/tac6.git#master"
   },
   "dependencies": {
     "audio-context": "git://github.com/ircam-rnd/audio-context.git#master"
+  },
+  "scripts": {
+    "bundle": "browserify player.es6.js > player.js -s 'Player' -d -t es6ify",
+    "test": "tac6"
   }
 }
