@@ -6,14 +6,12 @@
  * @version 1.2.2
  */
 
-'use strict'
-
-var audioContext = require("audio-context"); //make an AudioContext instance globally available
 var events = require('events');
 
 class Player extends events.EventEmitter {
 
-  constructor(buffer) {
+  constructor(buffer, options) {
+    this.audioContext = options.audioContext;
     // private properties
     Object.defineProperties(Player.prototype, {
       source: {
@@ -77,8 +75,8 @@ class Player extends events.EventEmitter {
     }
 
     // Create web audio nodes, relying on the given audio context.
-    this.gainNode = audioContext.createGain();
-    this.outputNode = audioContext.createGain(); // dummy node to provide a web audio-like output node
+    this.gainNode = this.audioContext.createGain();
+    this.outputNode = this.audioContext.createGain(); // dummy node to provide a web audio-like output node
 
     // this.on('ended', function() {
     //   console.log("Audio playing ended.");
@@ -93,7 +91,7 @@ class Player extends events.EventEmitter {
    */
   connect(target) {
     this.outputNode = target;
-    this.gainNode.connect(this.outputNode || audioContext.destination);
+    this.gainNode.connect(this.outputNode || this.audioContext.destination);
     return this; // for chainability
   }
 
@@ -175,8 +173,8 @@ class Player extends events.EventEmitter {
     // Lock playing to avoid multiple sources creation.
     if (this.status !== this.IS_PLAYING) {
       // Configure a BufferSource.
-      this.startedAtTime = audioContext.currentTime;
-      this.source = audioContext.createBufferSource();
+      this.startedAtTime = this.audioContext.currentTime;
+      this.source = this.audioContext.createBufferSource();
       this.source.buffer = this.buffer;
       this.source.playbackRate.value = this.speed;
       this.source.loop = this.loop;
@@ -258,7 +256,7 @@ class Player extends events.EventEmitter {
    * @todo Handle speed changes.
    */
   getElapsedDuration() {
-    return audioContext.currentTime - this.startedAtTime;
+    return this.audioContext.currentTime - this.startedAtTime;
   }
 
   /**
